@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Bill Details{% endblock %}
+
+{% block content %}
+    <h1>Bill Details (Page 2)</h1>
+
+    <div class="bill-summary">
+        <p><strong>Invoice ID:</strong> #{{ purchase_id }}</p>
+        <p><strong>Customer Email:</strong> {{ customer_email }}</p>
+        <p><strong>Purchase Time:</strong> {{ purchase_time }}</p>
+    </div>
+
+    <h2>Items Purchased</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Product ID</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Tax (%)</th>
+                <th>Price (Excl. Tax)</th>
+                <th>Tax Amount</th>
+                <th>Total Price (Incl. Tax)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in detailed_items %}
+            <tr>
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.product_id }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ "%.2f"|format(item.unit_price) }}</td>
+                <td>{{ "%.2f"|format(item.tax_percentage) }}</td>
+                <td>{{ "%.2f"|format(item.item_price_before_tax) }}</td>
+                <td>{{ "%.2f"|format(item.item_tax) }}</td>
+                <td>{{ "%.2f"|format(item.item_total_price) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5"></td>
+                <td><strong>Total (Excl. Tax):</strong></td>
+                <td>{{ "%.2f"|format(total_bill_amount - total_tax_amount) }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="5"></td>
+                <td><strong>Total Tax:</strong></td>
+                <td>{{ "%.2f"|format(total_tax_amount) }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="5"></td>
+                <td colspan="2"><strong>Grand Total (Incl. Tax):</strong></td>
+                <td><strong>{{ "%.2f"|format(total_bill_amount) }}</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="payment-summary">
+        <p><strong>Amount Paid by Customer:</strong> {{ "%.2f"|format(paid_amount) }}</p>
+        <p><strong>Balance to Return:</strong> {{ "%.2f"|format(balance_to_return) }}</p>
+
+        <h3>Change Denominations</h3>
+        {% if change_breakdown %}
+            <ul>
+                {% for denom, count in change_breakdown.items() %}
+                    <li>₹{{ denom }} x {{ count }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No change to return.</p>
+        {% endif %}
+    </div>
+
+    <p class="success-message">An invoice has been sent to {{ customer_email }} in the background.</p>
+    <a href="/billing/" class="button">Create New Bill</a>
+    <a href="/customer_purchases/" class="button">View Customer Purchases</a>
+{% endblock %}

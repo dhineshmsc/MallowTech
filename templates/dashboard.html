@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <h1>Welcome to the Billing System Dashboard!</h1>
+
+    {% if recent_purchases %}
+        <h2>Recent Purchases</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Invoice ID</th>
+                    <th>Customer Email</th>
+                    <th>Total Amount</th>
+                    <th>Paid Amount</th>
+                    <th>Purchase Time</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for purchase in recent_purchases %}
+                    <tr>
+                        <td>#{{ purchase.id }}</td>
+                        <td>{{ purchase.customer.email }}</td>
+                        <td>{{ "%.2f"|format(purchase.total_amount) }}</td>
+                        <td>{{ "%.2f"|format(purchase.paid_amount) }}</td>
+                        <td>{{ purchase.purchase_time.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+                        <td><a href="/purchase_details/{{ purchase.id }}" class="button">View</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No recent purchases to display. Start by creating a <a href="/billing/">New Bill</a>!</p>
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Purchase Invoice</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { width: 80%; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; }
+        h1, h2, h3 { color: #0056b3; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #eef; }
+        .summary p { margin: 5px 0; }
+        .footer { margin-top: 30px; font-size: 0.9em; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Purchase Invoice</h1>
+        <p>Dear {{ customer_email }},</p>
+        <p>Thank you for your purchase! Here are the details of your recent transaction.</p>
+
+        <div class="summary">
+            <p><strong>Invoice ID:</strong> #{{ purchase_id }}</p>
+            <p><strong>Purchase Time:</strong> {{ purchase_time }}</p>
+        </div>
+
+        <h2>Items Purchased</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Tax (%)</th>
+                    <th>Total Price (Incl. Tax)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in detailed_items %}
+                <tr>
+                    <td>{{ item.product_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ "%.2f"|format(item.unit_price) }}</td>
+                    <td>{{ "%.2f"|format(item.tax_percentage) }}</td>
+                    <td>{{ "%.2f"|format(item.item_total_price) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3"></td>
+                    <td><strong>Total Tax:</strong></td>
+                    <td>{{ "%.2f"|format(total_tax_amount) }}</td>
+                </tr>
+                <tr>
+                    <td colspan="3"></td>
+                    <td><strong>Grand Total:</strong></td>
+                    <td><strong>{{ "%.2f"|format(total_bill_amount) }}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <h2>Payment Summary</h2>
+        <p><strong>Amount Paid:</strong> {{ "%.2f"|format(paid_amount) }}</p>
+        <p><strong>Balance Returned:</strong> {{ "%.2f"|format(balance_to_return) }}</p>
+
+        {% if change_breakdown %}
+            <h3>Change Breakdown:</h3>
+            <ul>
+                {% for denom, count in change_breakdown.items() %}
+                    <li>₹{{ denom }} x {{ count }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="footer">
+            <p>Thank you for shopping with us!</p>
+            <p>Created By dhineshmsc2014@gmail.com</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}{% if product %}Edit Product{% else %}Add New Product{% endif %}{% endblock %}
+
+{% block content %}
+    <h1>{% if product %}Edit Product{% else %}Add New Product{% endif %}</h1>
+    <form action="{% if product %}/products/edit/{{ product.id }}{% else %}/products/add/{% endif %}" method="post">
+        {% if errors.general %}<p class="error">{{ errors.general }}</p>{% endif %}
+
+        <label for="name">Product Name:</label>
+        <input type="text" id="name" name="name" value="{{ product.name if product else (name if name is not none else '') }}" required>
+        {% if errors.name %}<p class="error">{{ errors.name }}</p>{% endif %}
+
+        <label for="product_id">Product Identifier (e.g., P001):</label>
+        <input type="text" id="product_id" name="product_id" value="{{ product.product_id if product else (product_id if product_id is not none else '') }}" required>
+        {% if errors.product_id %}<p class="error">{{ errors.product_id }}</p>{% endif %}
+
+        <label for="available_stocks">Available Stocks:</label>
+        <input type="number" id="available_stocks" name="available_stocks" value="{{ product.available_stocks if product else (available_stocks if available_stocks is not none else '') }}" required min="0">
+
+        <label for="price">Price (per unit):</label>
+        <input type="number" id="price" name="price" step="0.01" value="{{ product.price if product else (price if price is not none else '') }}" required min="0">
+
+        <label for="tax_percentage">Tax Percentage (%):</label>
+        <input type="number" id="tax_percentage" name="tax_percentage" step="0.01" value="{{ product.tax_percentage if product else (tax_percentage if tax_percentage is not none else '') }}" required min="0">
+
+        <button type="submit">{% if product %}Update Product{% else %}Add Product{% endif %}</button>
+        <a href="/products/" class="button secondary">Cancel</a>
+    </form>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Billing Calculation{% endblock %}
+
+{% block content %}
+    <h1>Billing Calculation (Page 1)</h1>
+    <form id="billingForm" action="/generate_bill/" method="post">
+        {% if errors.general %}<p class="error">{{ errors.general }}</p>{% endif %}
+
+        <div class="form-section">
+            <h2>Customer Details</h2>
+            <label for="customer_email">Customer Email:</label>
+            <input type="email" id="customer_email" name="customer_email" value="{{ customer_email if customer_email is not none else '' }}" required>
+            {% if errors.customer_email %}<p class="error">{{ errors.customer_email }}</p>{% endif %}
+        </div>
+
+        <div class="form-grid">
+            <div class="form-section product-section">
+                <h2>Products Purchased</h2>
+                <div id="product-items-container">
+                    {% if old_product_ids %}
+                        {% for i in range(old_product_ids|length) %}
+                            <div class="product-item">
+                                <label>Product ID:</label>
+                                <input type="text" name="product_id" value="{{ old_product_ids[i] }}" list="product_ids_list" required>
+                                {% if errors['product_' + i|string] %}<p class="error">{{ errors['product_' + i|string] }}</p>{% endif %}
+
+                                <label>Quantity:</label>
+                                <input type="number" name="quantities" value="{{ old_quantities[i] }}" min="1" required>
+                                {% if errors['quantity_' + i|string] %}<p class="error">{{ errors['quantity_' + i|string] }}</p>{% endif %}
+                                {% if errors['stock_' + i|string] %}<p class="error">{{ errors['stock_' + i|string] }}</p>{% endif %}
+
+                                <button type="button" class="remove-item-button">Remove</button>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="product-item">
+                            <label>Product ID:</label>
+                            <input type="text" name="product_id" list="product_ids_list" required>
+
+                            <label>Quantity:</label>
+                            <input type="number" name="quantities" min="1" value="1" required>
+
+                            <button type="button" class="remove-item-button">Remove</button>
+                        </div>
+                    {% endif %}
+                </div>
+                <button type="button" id="addNewProductButton" class="button add-product-button">Add New Product</button>
+                {% if errors.products %}<p class="error">{{ errors.products }}</p>{% endif %}
+
+                <datalist id="product_ids_list">
+                    {% for product in products %}
+                        <option value="{{ product.product_id }}">{{ product.name }} ({{ "%.2f"|format(product.price) }})</option>
+                    {% endfor %}
+                </datalist>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="form-section payment-section">
+                <h2>Payment Details</h2>
+                <label for="paid_amount">Customer Paid Amount:</label>
+                <input type="number" id="paid_amount" name="paid_amount" step="0.01" value="{{ paid_amount if paid_amount is not none else '' }}" required min="0">
+                {% if errors.paid_amount %}<p class="error">{{ errors.paid_amount }}</p>{% endif %}
+
+                <h3>Shop Denominations (for change calculation)</h3>
+                <div class="denominations-display">
+                    {% for denom in denominations %}
+                        <span>₹{{ denom }}</span>
+                    {% endfor %}
+                </div>
+                <p class="small-text">These values are used to calculate the balance change given to the customer.</p>
+            </div>
+        </div>
+
+        <button type="submit" class="button generate-bill-button">Generate Bill</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const productItemsContainer = document.getElementById('product-items-container');
+            const addNewProductButton = document.getElementById('addNewProductButton');
+
+            function addProductItem() {
+                const newItem = document.createElement('div');
+                newItem.classList.add('product-item');
+                newItem.innerHTML = `
+                    <label>Product ID:</label>
+                    <input type="text" name="product_id" list="product_ids_list" required>
+
+                    <label>Quantity:</label>
+                    <input type="number" name="quantities" min="1" value="1" required>
+
+                    <button type="button" class="remove-item-button">Remove</button>
+                `;
+                productItemsContainer.appendChild(newItem);
+            }
+
+            // Add listener for "Add New Product" button
+            addNewProductButton.addEventListener('click', addProductItem);
+
+            // Add listener for "Remove" buttons (using event delegation)
+            productItemsContainer.addEventListener('click', function(event) {
+                if (event.target.classList.contains('remove-item-button')) {
+                    if (productItemsContainer.children.length > 1) { // Ensure at least one item remains
+                        event.target.closest('.product-item').remove();
+                    } else {
+                        alert("You must have at least one product item.");
+                    }
+                }
+            });
+
+            // If there are no existing product items on page load, add one
+            if (productItemsContainer.children.length === 0) {
+                addProductItem();
+            }
+        });
+    </script>
+{% endblock %}

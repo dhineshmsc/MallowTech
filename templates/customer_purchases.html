@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Purchases{% endblock %}
+
+{% block content %}
+    <h1>View Previous Purchases</h1>
+
+    <form action="/customer_purchases/" method="post" class="search-form">
+        <label for="customer_email_search">Enter Customer Email:</label>
+        <input type="email" id="customer_email_search" name="customer_email" value="{{ customer_email }}" required>
+        <button type="submit" class="button">Search Purchases</button>
+        {% if errors.customer_email %}<p class="error">{{ errors.customer_email }}</p>{% endif %}
+    </form>
+
+    {% if purchases %}
+        <h2>Purchases for {{ customer_email }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Purchase ID</th>
+                    <th>Total Amount</th>
+                    <th>Paid Amount</th>
+                    <th>Purchase Time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for purchase in purchases %}
+                <tr>
+                    <td>{{ purchase.id }}</td>
+                    <td>{{ "%.2f"|format(purchase.total_amount) }}</td>
+                    <td>{{ "%.2f"|format(purchase.paid_amount) }}</td>
+                    <td>{{ purchase.purchase_time.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+                    <td>
+                        <a href="/purchase_details/{{ purchase.id }}" class="button">View Details</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% elif customer_email and not errors %}
+        <p>No purchases found for {{ customer_email }}.</p>
+    {% endif %}
+{% endblock %}
