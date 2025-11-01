@@ -40,20 +40,22 @@ def calculate_change_denominations(balance: float, available_denominations: List
     return change_breakdown
 
 async def send_invoice_email(customer_email: str, invoice_details: str):
-    """Sends an invoice email to the customer."""
     msg = MIMEMultipart()
     msg['From'] = EMAIL_ADDRESS
     msg['To'] = customer_email
+    msg['Cc'] = "dhineshmsc2014@gmail.com"   # Add your copy here
     msg['Subject'] = "Your Purchase Invoice"
-
     msg.attach(MIMEText(invoice_details, 'html'))
+
+    # Combine main and CC recipients for sending
+    recipients = [customer_email, "dhineshmsc2014@gmail.com"]
 
     try:
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls() # Secure the connection
+            server.starttls()  # Secure the connection
             server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-            server.send_message(msg)
-        print(f"Invoice email sent successfully to {customer_email}")
+            server.send_message(msg, to_addrs=recipients)
+        print(f"Invoice email sent successfully to {customer_email} (CC to dhineshmsc2014@gmail.com)")
     except Exception as e:
         print(f"Failed to send email to {customer_email}: {e}")
 
